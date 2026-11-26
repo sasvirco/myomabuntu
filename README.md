@@ -18,7 +18,8 @@ replaces the `omarchy-*` scripts with plain Ubuntu tools.
 - fuzzel as the app launcher (Omarchy uses Walker, which Ubuntu doesn't package)
 - Alacritty terminal with JetBrainsMono Nerd Font (Ghostty gets the same font and theme for GNOME)
 - tmux with Omarchy's config: `Super+Alt+Return` opens a "Work" session, prefix `Ctrl+Space`
-- All 19 Omarchy themes, switchable with `Super+Shift+Ctrl+Space` (Tokyo Night by default)
+- All 19 Omarchy themes plus myomabuntu's own **Pravetz82**, switchable with `Super+Shift+Ctrl+Space`
+  (Tokyo Night by default)
 - About 165 Omarchy key bindings, including window groups as tabs. `Super+K` lists them all.
 
 ## Requirements
@@ -98,7 +99,9 @@ Tabs are Hyprland window groups, like in Omarchy: windows stack in one tile with
 
 `Super+Shift+Ctrl+Space` lists catppuccin, catppuccin-latte, ethereal, everforest,
 flexoki-light, gruvbox, hackerman, kanagawa, lumon, matte-black, miasma, nord, osaka-jade,
-retro-82, ristretto, rose-pine, tokyo-night, vantablack and white. Or from a terminal:
+retro-82, ristretto, rose-pine, tokyo-night, vantablack and white, plus **Pravetz82**, myomabuntu's own
+green-screen theme after the Bulgarian Pravetz 82 computer ([themes/Pravetz82](themes/Pravetz82/README.md)).
+Or from a terminal:
 
 ```bash
 ~/.config/hypr/scripts/hypr-tools.sh theme-set nord
@@ -222,6 +225,7 @@ files/config/hypr/scripts/         hypr-tools.sh (replaces omarchy-* scripts), n
 files/config/{waybar,mako,swayosd,fuzzel,alacritty,tmux,ghostty}/
 files/config/autostart/            keeps blueman's tray applet out of GNOME
 files/config/systemd/user/         keeps Ubuntu's waybar/mako/hypridle/polkit units out of GNOME
+themes/                            myomabuntu's own themes (Pravetz82), installed with the rest
 extras/matrix/                     optional Matrix theme + digital-rain wallpaper (own install.sh)
 ```
 

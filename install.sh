@@ -125,6 +125,15 @@ git -C "$OMARCHY_SRC" fetch -q --tags
 git -C "$OMARCHY_SRC" -c advice.detachedHead=false checkout -q "$OMARCHY_TAG"
 ok "$OMARCHY_SRC at $OMARCHY_TAG"
 
+# --- myomabuntu's own themes (themes/ in this repo) ----------------------------
+step "Themes from this repo"
+for th in "$HERE"/themes/*/; do
+    name=$(basename "$th")
+    rm -rf "${OMARCHY_SRC:?}/themes/$name"
+    cp -a "$th" "$OMARCHY_SRC/themes/$name"
+    ok "$name"
+done
+
 # --- 4/5. Configs ------------------------------------------------------------
 step "Writing configs"
 mkdir -p "$HOME/.config"

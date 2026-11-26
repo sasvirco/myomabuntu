@@ -1,0 +1,55 @@
+# Pravetz82 — a green monochrome monitor of the Pravetz 82 era.
+# Inspired by Phosphor Green (github.com/squatchware/omarchy-phosphor-green-theme). Palette:
+#  - one P1 phosphor green (#33FF33, 525 nm, the Apple II-era green screen) on dark glass;
+#  - a monochrome screen shows colours only as brightness, so each terminal colour is the
+#    green shade matching its grey value, and bright colours bloom toward white;
+#  - selection is INVERSE (dark text on a solid green bar), as on the Apple II / Pravetz 82;
+#  - muted is the phosphor at half drive.
+mode = "dark"
+
+accent               = "#33FF33"
+cursor               = "#33FF33"
+foreground           = "#33FF33"
+background           = "#060D06"
+dark_background      = "#040804"
+darker_background    = "#000000"
+lighter_background   = "#091E09"
+muted                = "#1C811C"
+dark_foreground      = "#22A322"
+light_foreground     = "#5BFF5B"
+bright_foreground    = "#9AFF9A"
+selection            = "#33FF33"
+selection_background = "#33FF33"
+selection_foreground = "#060D06"
+
+red                  = "#1F921F"
+yellow               = "#31F331"
+orange               = "#26BB26"
+green                = "#2ACF2A"
+cyan                 = "#2EE22E"
+blue                 = "#197319"
+magenta              = "#22A322"
+brown                = "#145614"
+bright_red           = "#26BB26"
+bright_yellow        = "#6BFF6B"
+bright_green         = "#33FF33"
+bright_cyan          = "#53FF53"
+bright_blue          = "#22A322"
+bright_magenta       = "#2BD32B"
+
+color0               = "#0A250A"
+color1               = "#1F921F"
+color2               = "#2ACF2A"
+color3               = "#31F331"
+color4               = "#197319"
+color5               = "#22A322"
+color6               = "#2EE22E"
+color7               = "#2EE72E"
+color8               = "#186E18"
+color9               = "#26BB26"
+color10              = "#33FF33"
+color11              = "#6BFF6B"
+color12              = "#22A322"
+color13              = "#2BD32B"
+color14              = "#53FF53"
+color15              = "#9AFF9A"
