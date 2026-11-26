@@ -23,7 +23,7 @@
   "cpu": {
     "interval": 5,
     "format": "󰍛",
-    "on-click": "ghostty -e btop"
+    "on-click": "alacritty -e btop"
   },
   "clock": {
     "format": "{:L%A %H:%M}",

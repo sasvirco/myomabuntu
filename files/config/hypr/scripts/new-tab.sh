@@ -4,4 +4,4 @@
 if hyprctl activewindow -j | grep -q '"grouped": \[\]'; then
     hyprctl dispatch togglegroup >/dev/null
 fi
-exec ghostty
+exec alacritty

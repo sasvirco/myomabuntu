@@ -17,7 +17,7 @@ read [reference.md](reference.md) for file locations, the helper script and how 
 
 1. **Never install or enable another display manager** (SDDM, LightDM, greetd). GDM stays.
 2. **Never change GNOME settings, dconf, GDM config or `/etc/systemd/logind.conf`** to make
-   Hyprland work. Everything lives in `~/.config/{hypr,waybar,mako,swayosd,fuzzel,ghostty}`.
+   Hyprland work. Everything lives in `~/.config/{hypr,waybar,mako,swayosd,fuzzel,alacritty,tmux,ghostty}`.
    Reading GNOME settings (`gsettings get`, `dconf dump`) is fine.
 3. **Never run Omarchy's own installer** or `source` files from `~/src/omarchy`. It is Arch-only
    and replaces system config. Copy and adapt pieces instead.
@@ -66,12 +66,14 @@ Common requests:
 | Top bar modules | `~/.config/waybar/config.jsonc`, `style.css` | `pkill -SIGUSR2 waybar` |
 | Notifications | `~/.config/mako/core.ini` (rules; `config` is generated) | `makoctl reload` |
 | Launcher look | `~/.config/fuzzel/fuzzel.ini` (`theme.ini` is generated) | next launch |
-| Terminal font, settings | `~/.config/ghostty/config.ghostty` | `Ctrl+Shift+,` in Ghostty |
+| Terminal font, settings | `~/.config/alacritty/alacritty.toml` | automatic |
+| tmux | `~/.config/tmux/tmux.conf` | prefix `Ctrl+Space`, then `q` |
+| GNOME's Ghostty | `~/.config/ghostty/config.ghostty` | `Ctrl+Shift+,` in Ghostty |
 | Programs started at login | `exec-once = ` lines in `hyprland.conf` | next login |
 
 Don't edit the generated theme files (`hypr/theme.conf`, `hypr/theme-hyprlock.conf`,
 `waybar/theme.css`, `swayosd/theme.css`, `mako/config`, `fuzzel/theme.ini`,
-`ghostty/themes/omarchy`). `theme-set` rewrites them. To change a theme's colours, edit its
+`ghostty/themes/omarchy`, `alacritty/theme.toml`). `theme-set` rewrites them. To change a theme's colours, edit its
 `colors.toml` in a copy under `~/src/omarchy/themes/<new-name>/` and `theme-set` that.
 
 ### Key bindings
@@ -100,7 +102,7 @@ Omarchy's source is at `~/src/omarchy` (tag v3.8.4). Its bindings are in
 `default/hypr/bindings/*.conf` and `config/hypr/bindings.conf`; its scripts are in `bin/`. To port
 a feature: read the `omarchy-*` script, rewrite it with plain tools in `hypr-tools.sh`, and replace
 Arch-only commands (`pacman`, `yay`, `uwsm app --`, `omarchy-launch-*`, `xdg-terminal-exec`, Walker)
-with Ubuntu ones (`apt`, plain commands, `ghostty -e`, fuzzel). If it needs a package Ubuntu
+with Ubuntu ones (`apt`, plain commands, `alacritty -e`, fuzzel). If it needs a package Ubuntu
 doesn't have, say so instead of building it.
 
 ## Checking changes
@@ -110,6 +112,7 @@ Always run what applies and show failures to the user:
 ```bash
 Hyprland --verify-config -c ~/.config/hypr/hyprland.conf | tail -1   # must print "config ok"
 hyprctl configerrors                                                 # empty when running
+alacritty migrate --dry-run -c ~/.config/alacritty/alacritty.toml    # after Alacritty changes
 ghostty +validate-config                                             # after Ghostty changes
 bash -n ~/.config/hypr/scripts/hypr-tools.sh                         # after script changes
 python3 -c "import json,sys;json.load(open(sys.argv[1]))" ~/.config/waybar/config.jsonc
@@ -140,6 +143,13 @@ to "test" them. Ask the user to try them.
   should be non-zero. Re-run the font step from `install.sh`.
 - **Bar, notifications or OSD missing:** check the process (`pgrep -a waybar`) and start it with
   `hyprctl dispatch exec <name>` to see errors.
+- **`Super+C`/`V` don't work in Alacritty:** `alacritty.toml` needs the `Shift+Insert` (Paste)
+  and `Control+Insert` (Copy) bindings.
+- **Brightness keys do nothing:** Ubuntu's brightnessctl has no logind support, so writing the
+  backlight needs the `video` group. `hypr-tools.sh brightness` and `kbd-brightness` set it through
+  systemd-logind (`set_brightness`) instead; don't switch them back to `swayosd-client --brightness`
+  or `brightnessctl set`.
+- **A tmux pane ignores typing:** output was paused with `Ctrl+S`; `Ctrl+Q` resumes it.
 - **`Super+C`/`V` don't work in Ghostty:** `config.ghostty` needs
   `keybind = shift+insert=paste_from_clipboard` and `keybind = control+insert=copy_to_clipboard`.
 - **Power button shuts down at once:** expected under Hyprland (logind handles it). Changing

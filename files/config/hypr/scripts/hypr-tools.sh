@@ -15,6 +15,10 @@ external_connected() {
     return 1
 }
 touchpad_name() { hyprctl devices -j | jq -r '.mice[].name' | grep -i touchpad | head -n1; }
+# Set a backlight or LED through systemd-logind: works for the logged-in user without root
+# or the video group. Usage: set_brightness backlight|leds <device> <raw value>
+set_brightness() { busctl call org.freedesktop.login1 /org/freedesktop/login1/session/auto \
+    org.freedesktop.login1.Session SetBrightness ssu "$1" "$2" "$3"; }
 kbd_led() { basename "$(ls -d /sys/class/leds/*kbd_backlight* 2>/dev/null | head -n1)" 2>/dev/null; }
 OMARCHY_SRC=${OMARCHY_SRC:-$HOME/src/omarchy}
 OMARCHY_THEMES=$OMARCHY_SRC/themes
@@ -97,6 +101,21 @@ audio-output-switch)
     next=${sinks[$(( (cur + 1) % ${#sinks[@]} ))]}
     IFS='|' read -r _ id desc <<<"$next"
     wpctl set-default "$id"; osd "$desc" audio-speakers-symbolic ;;
+brightness) # raise | lower | +N | -N | N  (percent of the laptop screen)
+    dev=$(ls /sys/class/backlight 2>/dev/null | head -n1); [[ -z $dev ]] && exit 1
+    max=$(< "/sys/class/backlight/$dev/max_brightness"); cur=$(< "/sys/class/backlight/$dev/brightness")
+    pct=$(( (cur * 100 + max / 2) / max ))
+    case ${2:-raise} in
+        raise) pct=$(( pct + 5 )) ;;
+        lower) pct=$(( pct - 5 )) ;;
+        +*)    pct=$(( pct + ${2#+} )) ;;
+        -*)    pct=$(( pct - ${2#-} )) ;;
+        *)     pct=$2 ;;
+    esac
+    (( pct < 1 )) && pct=1; (( pct > 100 )) && pct=100
+    set_brightness backlight "$dev" $(( max * pct / 100 ))
+    swayosd-client --custom-icon display-brightness-symbolic \
+        --custom-progress "$(awk -v p="$pct" 'BEGIN { print p / 100 }')" >/dev/null 2>&1 ;;
 kbd-brightness) # up | down | cycle
     dev=$(kbd_led); [[ -z $dev ]] && exit 1
     max=$(brightnessctl -d "$dev" max); cur=$(brightnessctl -d "$dev" get)
@@ -106,7 +125,7 @@ kbd-brightness) # up | down | cycle
         down)  new=$(( cur - step < 0 ? 0 : cur - step )) ;;
         cycle) new=$(( cur + step > max ? 0 : cur + step )) ;;
     esac
-    brightnessctl -d "$dev" set "$new" >/dev/null
+    set_brightness leds "$dev" "$new"
     osd "Keyboard backlight $(( new * 100 / max ))%" keyboard-brightness-symbolic ;;
 touchpad) # toggle | on | off
     dev=$(touchpad_name); [[ -z $dev ]] && exit 1
@@ -150,6 +169,7 @@ theme-set) # <name> : write per-app theme files from Omarchy's templates, then r
     render waybar.css         > ~/.config/waybar/theme.css
     render swayosd.css        > ~/.config/swayosd/theme.css
     render ghostty.conf       > ~/.config/ghostty/themes/omarchy
+    render alacritty.toml     > ~/.config/alacritty/theme.toml
     render mako.ini | sed 's|^include=.*|include=~/.config/mako/core.ini|' > ~/.config/mako/config
     eval "$(sed -nE 's/^(background|foreground|accent) *= *"#([0-9a-fA-F]{6}).*/\1=\2/p' "$t/colors.toml")"
     printf '[colors]\nbackground=%sf2\ntext=%sff\nprompt=%sff\ninput=%sff\nmatch=%sff\nselection=%sff\nselection-text=%sff\nselection-match=%sff\nborder=%sff\n' \

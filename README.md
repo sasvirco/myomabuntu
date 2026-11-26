@@ -16,7 +16,8 @@ replaces the `omarchy-*` scripts with plain Ubuntu tools.
 - Waybar top bar, Mako notifications, SwayOSD volume/brightness pop-ups, Hyprlock lock screen,
   hypridle (locks after 5 min, screen off after 5.5, suspend after 15)
 - fuzzel as the app launcher (Omarchy uses Walker, which Ubuntu doesn't package)
-- Ghostty terminal with JetBrainsMono Nerd Font
+- Alacritty terminal with JetBrainsMono Nerd Font (Ghostty gets the same font and theme for GNOME)
+- tmux with Omarchy's config: `Super+Alt+Return` opens a "Work" session, prefix `Ctrl+Space`
 - All 19 Omarchy themes, switchable with `Super+Shift+Ctrl+Space` (Tokyo Night by default)
 - About 165 Omarchy key bindings, including window groups as tabs. `Super+K` lists them all.
 
@@ -45,9 +46,9 @@ The installer:
 4. Installs JetBrainsMono Nerd Font for your user only (no root).
 5. Clones Omarchy v3.8.4 to `~/src/omarchy` for its themes and wallpapers. Omarchy's own installer
    is never run.
-6. Writes configs to `~/.config/{hypr,waybar,mako,swayosd,fuzzel,ghostty}`, copies your keyboard
+6. Writes configs to `~/.config/{hypr,waybar,mako,swayosd,fuzzel,alacritty,tmux,ghostty}`, copies your keyboard
    layouts from GNOME, and applies the theme.
-7. Checks the Hyprland and Ghostty configs and confirms GNOME settings and GDM are unchanged.
+7. Checks the Hyprland, Alacritty and Ghostty configs and confirms GNOME settings and GDM are unchanged.
 
 Options: `-y` skips the question before installing packages, `--skip-apt` writes configs only (no
 sudo), `THEME=nord ./install.sh` starts with another theme.
@@ -103,7 +104,7 @@ retro-82, ristretto, rose-pine, tokyo-night, vantablack and white. Or from a ter
 ~/.config/hypr/scripts/hypr-tools.sh theme-set nord
 ```
 
-A theme recolours Hyprland, Waybar, Mako, SwayOSD, fuzzel, Hyprlock and Ghostty, and sets the
+A theme recolours Hyprland, Waybar, Mako, SwayOSD, fuzzel, Hyprlock, Alacritty and Ghostty, and sets the
 theme's first wallpaper. Light themes don't switch GTK apps to light mode, because that's a GNOME
 setting.
 
@@ -150,7 +151,7 @@ followed by your request to call it directly.
 - Lock and sleep: "lock after 10 minutes instead of 5", "don't suspend on idle"
 - Keyboard, touchpad, monitors: layouts, scroll direction, scaling, monitor positions
 - Notifications: position, timeout, apps to hide
-- Terminal and launcher: Ghostty font and settings, how fuzzel looks
+- Terminal and launcher: Alacritty font and settings, tmux, how fuzzel looks
 - Programs started at login
 - More from Omarchy: "port Omarchy's night light". It rewrites `omarchy-*` scripts with Ubuntu
   tools, and says so if Ubuntu doesn't package what's needed.
@@ -183,11 +184,12 @@ you used before):
 
 ```bash
 mkdir -p ~/myomabuntu-backup/removed
-mv ~/.config/{hypr,waybar,mako,swayosd,fuzzel} ~/myomabuntu-backup/removed/
+mv ~/.config/{hypr,waybar,mako,swayosd,fuzzel,alacritty,tmux} ~/myomabuntu-backup/removed/
 rm ~/.config/autostart/blueman.desktop
+rm -r ~/.config/systemd/user/{waybar,mako,hypridle,hyprpolkitagent}.service.d
 # restore your old Ghostty config from ~/myomabuntu-backup/<date_time>/ghostty if you had one
-sudo apt remove hyprland hyprlock hypridle hyprpolkitagent hyprpicker xdg-desktop-portal-hyprland \
-  waybar mako-notifier swayosd swaybg fuzzel cliphist
+sudo apt remove hyprland hyprland-qtutils hyprlock hypridle hyprpolkitagent hyprpicker xdg-desktop-portal-hyprland \
+  waybar mako-notifier swayosd swaybg fuzzel cliphist alacritty tmux
 apt-get -s autoremove | grep '^Remv'   # read this list before running autoremove for real
 ```
 
@@ -213,8 +215,9 @@ sudo systemctl restart gdm3
 install.sh                         installer
 files/config/hypr/                 hyprland.conf (bindings), looknfeel.conf, hypridle/hyprlock
 files/config/hypr/scripts/         hypr-tools.sh (replaces omarchy-* scripts), new-tab.sh, system-menu.sh
-files/config/{waybar,mako,swayosd,fuzzel,ghostty}/
+files/config/{waybar,mako,swayosd,fuzzel,alacritty,tmux,ghostty}/
 files/config/autostart/            keeps blueman's tray applet out of GNOME
+files/config/systemd/user/         keeps Ubuntu's waybar/mako/hypridle/polkit units out of GNOME
 ```
 
 ## Credits

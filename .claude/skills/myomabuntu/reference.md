@@ -43,7 +43,8 @@
 | `lid close\|open` | lid switch: laptop screen off/on with an external monitor | lid |
 | `scale-cycle [--reverse]` | 1, 1.25, 1.5, 2 (until next reload) | `Super+/`, `Super+Alt+/` |
 | `audio-output-switch` | next audio output (wpctl) | `Super+Mute` |
-| `kbd-brightness up\|down\|cycle` | keyboard backlight | backlight keys |
+| `brightness raise\|lower\|±N\|N` | laptop screen brightness (percent), through systemd-logind | brightness keys |
+| `kbd-brightness up\|down\|cycle` | keyboard backlight, through systemd-logind | backlight keys |
 | `touchpad toggle\|on\|off` | touchpad on/off | touchpad keys |
 | `toggle-bar`, `idle-toggle` | hide Waybar, stop/start hypridle | `Super+Shift+Space`, `Super+Ctrl+I` |
 | `zoom-in`, `zoom-reset` | cursor zoom | `Super+Ctrl+Z`, `Super+Ctrl+Alt+Z` |
@@ -60,7 +61,7 @@ display actions turn things back on). State flags live in `$XDG_RUNTIME_DIR/hypr
 renders `~/src/omarchy/default/themed/<file>.tpl`. A theme's own file (e.g.
 `themes/kanagawa/hyprland.conf`) wins over the template. Fuzzel colours are built from
 `background`, `foreground` and `accent`. Afterwards it reloads Hyprland, Waybar (SIGUSR2) and
-Mako, restarts swayosd-server and swaybg, and sends `Ctrl+Shift+,` to every Ghostty window.
+Mako, restarts swayosd-server and swaybg, and sends `Ctrl+Shift+,` to every Ghostty window. Alacritty reloads `theme.toml` on its own.
 `NO_RELOAD=1` skips the reloads (used by the installer).
 
 Light themes (`catppuccin-latte`, `flexoki-light`, `rose-pine`, `white`) don't switch GTK to light
@@ -69,9 +70,10 @@ mode, because that's a GNOME setting.
 ## Packages
 
 ```
-hyprland hyprlock hypridle hyprpolkitagent hyprpicker xdg-desktop-portal-hyprland
+hyprland hyprland-qtutils hyprlock hypridle hyprpolkitagent hyprpicker xdg-desktop-portal-hyprland
 waybar mako-notifier swayosd swaybg fuzzel wl-clipboard cliphist grim slurp
 brightnessctl playerctl pamixer network-manager-gnome blueman fonts-jetbrains-mono jq ghostty
+alacritty tmux
 ```
 
 All from Ubuntu 26.04's main/universe, installed with `--no-install-recommends`. The Nerd Font comes from

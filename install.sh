@@ -18,10 +18,10 @@ OMARCHY_SRC=${OMARCHY_SRC:-$HOME/src/omarchy}
 THEME=${THEME:-tokyo-night}   # any folder in omarchy/themes, e.g. THEME=nord ./install.sh
 NERD_FONT_URL=https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.tar.xz
 
-PKGS=(hyprland hyprlock hypridle hyprpolkitagent hyprpicker xdg-desktop-portal-hyprland
+PKGS=(hyprland hyprland-qtutils hyprlock hypridle hyprpolkitagent hyprpicker xdg-desktop-portal-hyprland
       waybar mako-notifier swayosd swaybg fuzzel
       wl-clipboard cliphist grim slurp brightnessctl playerctl pamixer
-      network-manager-gnome blueman fonts-jetbrains-mono jq ghostty)
+      network-manager-gnome blueman fonts-jetbrains-mono jq ghostty alacritty tmux)
 
 ASSUME_YES=0
 SKIP_APT=0
@@ -62,7 +62,7 @@ echo "$DM" > "$B/display-manager.txt"
 if [[ $SKIP_APT == 0 ]]; then
     sudo cat "/var/lib/AccountsService/users/$USER" > "$B/accountsservice.txt" || warn "Could not back up AccountsService file"
 fi
-for d in hypr waybar mako swayosd fuzzel ghostty; do
+for d in hypr waybar mako swayosd fuzzel alacritty tmux ghostty; do
     if [[ -e $HOME/.config/$d ]]; then cp -a "$HOME/.config/$d" "$B/$d"; ok "Backed up existing ~/.config/$d"; fi
 done
 [[ -e $HOME/.config/autostart/blueman.desktop ]] && cp -a "$HOME/.config/autostart/blueman.desktop" "$B/"
@@ -128,7 +128,7 @@ ok "$OMARCHY_SRC at $OMARCHY_TAG"
 # --- 4/5. Configs ------------------------------------------------------------
 step "Writing configs"
 mkdir -p "$HOME/.config"
-for d in hypr waybar mako swayosd fuzzel; do
+for d in hypr waybar mako swayosd fuzzel alacritty tmux; do
     rm -rf "$HOME/.config/$d"
     cp -a "$FILES/$d" "$HOME/.config/$d"
     ok "~/.config/$d"
@@ -139,6 +139,12 @@ ok "~/.config/ghostty (GNOME's Ghostty uses this too; old one is in the backup)"
 mkdir -p "$HOME/.config/autostart"
 cp "$FILES/autostart/blueman.desktop" "$HOME/.config/autostart/blueman.desktop"
 ok "~/.config/autostart/blueman.desktop (keeps blueman's applet out of GNOME)"
+# Ubuntu enables waybar, mako, hypridle and hyprpolkitagent for every graphical session,
+# GNOME included. These drop-ins let systemd start them only inside Hyprland.
+mkdir -p "$HOME/.config/systemd/user"
+cp -a "$FILES/systemd/user/." "$HOME/.config/systemd/user/"
+systemctl --user daemon-reload 2>/dev/null || true
+ok "~/.config/systemd/user/*.service.d (keeps Waybar, Mako, hypridle, polkit agent out of GNOME)"
 chmod +x "$HOME"/.config/hypr/scripts/*.sh
 OMARCHY_SRC="$OMARCHY_SRC" NO_RELOAD=1 "$HOME/.config/hypr/scripts/hypr-tools.sh" theme-set "$THEME"
 ok "Theme: $THEME (colours and wallpaper; Super+Shift+Ctrl+Space switches)"
@@ -171,6 +177,10 @@ step "Verifying"
 if command -v Hyprland >/dev/null; then
     out=$(Hyprland --verify-config -c "$conf" 2>&1 | tail -1)
     [[ $out == "config ok" ]] && ok "Hyprland config ok" || die "Hyprland config check failed: $out"
+fi
+if command -v alacritty >/dev/null; then
+    alacritty migrate --dry-run -c "$HOME/.config/alacritty/alacritty.toml" >/dev/null 2>&1 \
+        && ok "Alacritty config ok" || warn "Alacritty config check failed"
 fi
 if command -v ghostty >/dev/null; then
     ghostty +validate-config >/dev/null && ok "Ghostty config ok" || warn "Ghostty config check failed"
