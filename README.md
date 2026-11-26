@@ -108,6 +108,10 @@ A theme recolours Hyprland, Waybar, Mako, SwayOSD, fuzzel, Hyprlock, Alacritty a
 theme's first wallpaper. Light themes don't switch GTK apps to light mode, because that's a GNOME
 setting.
 
+**Matrix extra:** an optional Matrix theme with an animated digital-rain wallpaper, installed
+separately with `extras/matrix/install.sh` after the main install. See
+[extras/matrix/README.md](extras/matrix/README.md).
+
 ## Differences from Omarchy
 
 | Omarchy | Here |
@@ -218,6 +222,7 @@ files/config/hypr/scripts/         hypr-tools.sh (replaces omarchy-* scripts), n
 files/config/{waybar,mako,swayosd,fuzzel,alacritty,tmux,ghostty}/
 files/config/autostart/            keeps blueman's tray applet out of GNOME
 files/config/systemd/user/         keeps Ubuntu's waybar/mako/hypridle/polkit units out of GNOME
+extras/matrix/                     optional Matrix theme + digital-rain wallpaper (own install.sh)
 ```
 
 ## Credits

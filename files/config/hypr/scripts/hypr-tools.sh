@@ -22,6 +22,7 @@ set_brightness() { busctl call org.freedesktop.login1 /org/freedesktop/login1/se
 kbd_led() { basename "$(ls -d /sys/class/leds/*kbd_backlight* 2>/dev/null | head -n1)" 2>/dev/null; }
 OMARCHY_SRC=${OMARCHY_SRC:-$HOME/src/omarchy}
 OMARCHY_THEMES=$OMARCHY_SRC/themes
+RAIN=$HOME/.config/hypr/scripts/matrix-rain.py   # installed by extras/matrix/install.sh
 STATE="${XDG_RUNTIME_DIR:-/tmp}/hypr-tools"
 mkdir -p "$STATE"
 
@@ -170,6 +171,8 @@ theme-set) # <name> : write per-app theme files from Omarchy's templates, then r
     render swayosd.css        > ~/.config/swayosd/theme.css
     render ghostty.conf       > ~/.config/ghostty/themes/omarchy
     render alacritty.toml     > ~/.config/alacritty/theme.toml
+    # theme-specific Alacritty settings, e.g. the Matrix theme's see-through terminal
+    cat "$t/alacritty-extra.toml" 2>/dev/null > ~/.config/alacritty/theme-extra.toml || : > ~/.config/alacritty/theme-extra.toml
     render mako.ini | sed 's|^include=.*|include=~/.config/mako/core.ini|' > ~/.config/mako/config
     eval "$(sed -nE 's/^(background|foreground|accent) *= *"#([0-9a-fA-F]{6}).*/\1=\2/p' "$t/colors.toml")"
     printf '[colors]\nbackground=%sf2\ntext=%sff\nprompt=%sff\ninput=%sff\nmatch=%sff\nselection=%sff\nselection-text=%sff\nselection-match=%sff\nborder=%sff\n' \
@@ -177,23 +180,39 @@ theme-set) # <name> : write per-app theme files from Omarchy's templates, then r
     rm -f "$sedf"
     bg=$(ls "$t/backgrounds" 2>/dev/null | sort | head -n1)
     [[ -n $bg ]] && cp "$t/backgrounds/$bg" ~/.config/hypr/wallpaper.jpg
+    # a theme folder with a 'digital-rain' file uses the animated wallpaper (extras/matrix)
+    [[ -f $t/digital-rain ]] && echo rain > ~/.config/hypr/wallpaper.mode || echo image > ~/.config/hypr/wallpaper.mode
     echo "$name" > ~/.config/hypr/theme.name
     [[ ${NO_RELOAD:-0} == 1 ]] && exit 0
     hyprctl reload >/dev/null
     pkill -SIGUSR2 -x waybar
     makoctl reload
     pkill -x swayosd-server; hyprctl dispatch exec swayosd-server >/dev/null
-    pkill -x swaybg; hyprctl dispatch exec "swaybg -i $HOME/.config/hypr/wallpaper.jpg -m fill" >/dev/null
+    "$0" wallpaper-start
     for addr in $(hyprctl clients -j | jq -r '.[] | select(.class == "com.mitchellh.ghostty") | .address'); do
         hyprctl dispatch sendshortcut "CTRL SHIFT, comma, address:$addr" >/dev/null
     done
     notify "Theme: $name" ;;
 background-menu)
     dir="$OMARCHY_THEMES/$(cat ~/.config/hypr/theme.name 2>/dev/null || echo tokyo-night)/backgrounds"
-    pick=$( { ls "$dir"; ls ~/Pictures | grep -iE '\.(jpe?g|png)$'; } | fuzzel --dmenu --prompt "Background: ") || exit 0
-    src="$dir/$pick"; [[ -f $src ]] || src=~/Pictures/$pick
-    cp "$src" ~/.config/hypr/wallpaper.jpg
-    pkill -x swaybg; hyprctl dispatch exec "swaybg -i ~/.config/hypr/wallpaper.jpg -m fill" >/dev/null ;;
+    rain="Digital rain (animated)"; [[ -f $RAIN && -f $dir/../digital-rain ]] || rain=""   # only themes that ship the rain (Matrix)
+    pick=$( { [[ -n $rain ]] && echo "$rain"; ls "$dir"; ls ~/Pictures | grep -iE '\.(jpe?g|png)$'; } | fuzzel --dmenu --prompt "Background: ") || exit 0
+    if [[ -n $rain && $pick == "$rain" ]]; then
+        echo rain > ~/.config/hypr/wallpaper.mode
+    else
+        src="$dir/$pick"; [[ -f $src ]] || src=~/Pictures/$pick
+        cp "$src" ~/.config/hypr/wallpaper.jpg
+        echo image > ~/.config/hypr/wallpaper.mode
+    fi
+    exec "$0" wallpaper-start ;;
+wallpaper-start) # still image (swaybg), or the digital rain from extras/matrix when wallpaper.mode says so
+    pkill -x swaybg; pkill -f '^python3 .*/matrix-rain.py' || true
+    theme_dir="$OMARCHY_THEMES/$(cat ~/.config/hypr/theme.name 2>/dev/null)"
+    if [[ $(cat ~/.config/hypr/wallpaper.mode 2>/dev/null) == rain && -f $RAIN && -f $theme_dir/digital-rain ]]; then
+        hyprctl dispatch exec "python3 $RAIN" >/dev/null
+    else
+        hyprctl dispatch exec "swaybg -i $HOME/.config/hypr/wallpaper.jpg -m fill" >/dev/null
+    fi ;;
 capture-menu)
     dir=~/Pictures/Screenshots; mkdir -p "$dir"; f="$dir/$(date +%F_%H-%M-%S).png"
     choice=$(printf '%s\n' "Region" "Window" "Screen" | fuzzel --dmenu --prompt "Capture: " --lines 3) || exit 0

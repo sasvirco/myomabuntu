@@ -1,0 +1,9 @@
+# Matrix theme: a see-through terminal so the digital rain shows behind it.
+# extras/matrix/install.sh copies this into the theme as alacritty-extra.toml;
+# theme-set writes it to ~/.config/alacritty/theme-extra.toml.
+[window]
+opacity = 0.7
+
+[colors]
+# Also apply the opacity to apps that paint their own background (e.g. Claude Code)
+transparent_background_colors = true

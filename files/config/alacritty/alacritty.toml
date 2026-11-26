@@ -1,6 +1,7 @@
-# Written by myomabuntu, adapted from Omarchy. Colours come from theme.toml,
+# Written by myomabuntu, adapted from Omarchy. Colours come from theme.toml (and
+# theme-extra.toml, e.g. the Matrix theme's transparency),
 # which `hypr-tools.sh theme-set` rewrites (Alacritty reloads it on its own).
-general.import = [ "~/.config/alacritty/theme.toml" ]
+general.import = [ "~/.config/alacritty/theme.toml", "~/.config/alacritty/theme-extra.toml" ]
 
 [env]
 TERM = "xterm-256color"
