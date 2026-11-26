@@ -161,7 +161,7 @@ kb_variant=$(IFS=,; echo "${variants[*]}")
 kb_options=""
 (( ${#layouts[@]} > 1 )) && kb_options="grp:alt_shift_toggle"
 conf=$HOME/.config/hypr/hyprland.conf
-sed -i -E "s|^(\s*)kb_layout = .*|\1kb_layout = $kb_layout|; s|^(\s*)kb_variant = .*|\1kb_variant = $kb_variant|; s|^(\s*)kb_options = .*|\1kb_options = $kb_options|" "$conf"
+sed -i -E "s|^(\s*)kb_layout =.*|\1kb_layout = $kb_layout|; s|^(\s*)kb_variant =.*|\1kb_variant = $kb_variant|; s|^(\s*)kb_options =.*|\1kb_options = $kb_options|" "$conf"
 ok "Keyboard: layout '$kb_layout', variant '$kb_variant'${kb_options:+, Alt+Shift switches}"
 
 # Browser used by Super+Shift+B and the web apps
