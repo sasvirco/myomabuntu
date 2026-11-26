@@ -16,5 +16,5 @@ A green-screen theme after the Pravetz 82, the Bulgarian Apple II-compatible hom
 
       python3 make-wallpaper.py backgrounds/01-8bit-grid.png
 
-- **Terminal:** Alacritty turns 85% opaque with this theme (`alacritty-extra.toml`) so the
+- **Terminal:** Alacritty turns 85% opaque with a blinking block cursor with this theme (`alacritty-extra.toml`), so the
   wallpaper shows through.

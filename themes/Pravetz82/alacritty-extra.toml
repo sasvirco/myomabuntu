@@ -7,3 +7,9 @@ opacity = 0.85
 [colors]
 # Also apply the opacity to apps that paint their own background (e.g. Claude Code)
 transparent_background_colors = true
+
+[cursor]
+# A blinking block, like the Pravetz 82's flashing cursor; keeps blinking when idle
+style = { shape = "Block", blinking = "Always" }
+blink_interval = 500
+blink_timeout = 0
