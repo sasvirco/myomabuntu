@@ -20,6 +20,9 @@ touchpad_name() { hyprctl devices -j | jq -r '.mice[].name' | grep -i touchpad |
 set_brightness() { busctl call org.freedesktop.login1 /org/freedesktop/login1/session/auto \
     org.freedesktop.login1.Session SetBrightness ssu "$1" "$2" "$3"; }
 kbd_led() { basename "$(ls -d /sys/class/leds/*kbd_backlight* 2>/dev/null | head -n1)" 2>/dev/null; }
+# Notification history from mako as JSON lines {app, summary, body}, newest first.
+mako_history() { busctl --user -j call org.freedesktop.Notifications /fr/emersion/Mako fr.emersion.Mako ListHistory \
+    | jq -c '.data[0][] | {app: ."app-name".data, summary: .summary.data, body: (.body.data | gsub("\\s+"; " ") | .[0:200])}'; }
 OMARCHY_SRC=${OMARCHY_SRC:-$HOME/src/omarchy}
 OMARCHY_THEMES=$OMARCHY_SRC/themes
 RAIN=$HOME/.config/hypr/scripts/matrix-rain.py   # installed by extras/matrix/install.sh
@@ -232,6 +235,21 @@ keybindings) # cheat sheet from the bindd descriptions
                           "20":"-","21":"=","61":"/"}[(.keycode|tostring)] // "code:\(.keycode)") end;
       .[] | select(.has_description) | "\([mods, keyname] | map(select(. != "")) | join(" + "))  →  \(.description)"' \
     | fuzzel --dmenu --prompt "Keys: " --width 70 --lines 25 >/dev/null ;;
+# --- Notifications -----------------------------------------------------------
+notifications) # past notifications in fuzzel; pick one to copy it, or toggle do-not-disturb
+    dnd=$(makoctl mode | grep -qx do-not-disturb && echo "on" || echo "off")
+    choice=$( { echo "󰂛  Do not disturb: $dnd (click to toggle)"; mako_history \
+        | jq -r '"\(.app // "" | if . == "" then "" else . + " — " end)\(.summary)\(if .body != "" then ": " + .body else "" end)"'; } \
+        | fuzzel --dmenu --prompt "Notifications: " --width 90 --lines 20) || exit 0
+    if [[ $choice == "󰂛  Do not disturb"* ]]; then exec "$0" notifications-dnd; fi
+    printf '%s' "$choice" | wl-copy ;;
+notifications-dnd)
+    makoctl mode -t do-not-disturb >/dev/null; pkill -RTMIN+9 waybar ;;
+notifications-status) # JSON for the Waybar bell
+    tip=$(mako_history | head -n 8 | jq -r '"• \(.summary)"' | sed 's/&/\&amp;/g; s/</\&lt;/g')
+    if makoctl mode | grep -qx do-not-disturb; then icon="󰂛"; class=dnd; else icon="󰂚"; class=normal; fi
+    jq -cn --arg i "$icon" --arg t "${tip:-No notifications}" --arg c "$class" '{text:$i, tooltip:$t, class:$c}' ;;
+
 webapp) exec google-chrome --app="$2" ;;
 *)
     echo "Usage: $(basename "$0") <action>" >&2; exit 1 ;;
