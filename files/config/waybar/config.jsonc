@@ -6,7 +6,7 @@
   "height": 26,
   "modules-left": ["hyprland/workspaces"],
   "modules-center": ["clock", "hyprland/language"],
-  "modules-right": ["group/tray-expander", "bluetooth", "network", "pulseaudio", "cpu", "battery"],
+  "modules-right": ["group/tray-expander", "custom/notifications", "bluetooth", "network", "pulseaudio", "cpu", "battery"],
   "hyprland/workspaces": {
     "on-click": "activate",
     "format": "{icon}",
@@ -19,6 +19,15 @@
   "hyprland/language": {
     "format": "{short}",
     "tooltip": false
+  },
+  "custom/notifications": {
+    "exec": "~/.config/hypr/scripts/hypr-tools.sh notifications-status",
+    "return-type": "json",
+    "interval": 5,
+    "signal": 9,
+    "on-click": "~/.config/hypr/scripts/hypr-tools.sh notifications",
+    "on-click-right": "~/.config/hypr/scripts/hypr-tools.sh notifications-dnd",
+    "on-click-middle": "makoctl dismiss --all"
   },
   "cpu": {
     "interval": 5,

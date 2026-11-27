@@ -84,6 +84,8 @@ too. Your old Ghostty config is in the backup.
 | `Super+Shift+Ctrl+Space` | Theme menu |
 | `Super+Ctrl+Space` | Wallpaper menu |
 | `Super+Ctrl+L` | Lock |
+| `Super+N` | Notification history (also the bell in the top bar; right-click it for Do Not Disturb) |
+| `Super+,` / `Super+Shift+Alt+,` | Dismiss / bring back the last notification |
 | `Alt+Shift` | Switch keyboard layout (if GNOME has more than one) |
 
 ### Tabs
